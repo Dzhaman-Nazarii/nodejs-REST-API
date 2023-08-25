@@ -23,9 +23,3 @@ app.use((err, req, res, next) => {
 });
 
 module.exports = app;
-
-// dzhamannazar2003
-// goYeJQeYhLyjrVvV
-
-// Nazarii
-// CAQQ8nzEw6POkhDf
