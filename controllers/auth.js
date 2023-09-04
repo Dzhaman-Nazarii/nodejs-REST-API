@@ -3,6 +3,7 @@ const jwt = require("jsonwebtoken");
 const gravatar = require("gravatar");
 const path = require("path");
 const fs = require("fs/promises");
+const Jimp = require("jimp");
 
 const { User } = require("../models/user");
 
@@ -84,13 +85,18 @@ const current = async (req, res, next) => {
 
 const updateAvatar = async (req, res, next) => {
   const { id } = req.user;
-  const { path: tempUpload, originalname } = req.file;
+  const { path: tmpUpload, originalname } = req.file;
+  const image = await Jimp.read(tmpUpload);
+  image.resize(250, 250).write(tmpUpload);
   const filename = `${id}_${originalname}`;
   const resultUpload = path.join(avatarsDir, filename);
-  await fs.rename(tempUpload, resultUpload);
+  await fs.rename(tmpUpload, resultUpload);
   const avatarURL = path.join("avatars", filename);
-  await User.findByIdAndUpdate(id, { avatarURL });
-  res.status(200).json({ avatarURL: avatarURL });
+  const result = await User.findByIdAndUpdate(id, { avatarURL });
+  if (!result) {
+    throw HttpError(401, "Not authorized");
+  }
+  res.status(200).json({ avatarURL });
 };
 
 module.exports = {
