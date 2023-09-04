@@ -83,16 +83,13 @@ const current = async (req, res, next) => {
 };
 
 const updateAvatar = async (req, res, next) => {
-  const { _id } = req.user;
+  const { id } = req.user;
   const { path: tempUpload, originalname } = req.file;
-  const filename = `${_id}_${originalname}`;
+  const filename = `${id}_${originalname}`;
   const resultUpload = path.join(avatarsDir, filename);
   await fs.rename(tempUpload, resultUpload);
   const avatarURL = path.join("avatars", filename);
-  const result = await User.findByIdAndUpdate(_id, { avatarURL });
-  if (!result) {
-    throw HttpError(401, "Not authorized");
-  }
+  await User.findByIdAndUpdate(id, { avatarURL });
   res.status(200).json({ avatarURL: avatarURL });
 };
 
